@@ -53,6 +53,9 @@
             }
         ));
 
+        // Variable to track if model has been added
+        let userModel = null;
+
 
         // Event listener for when geolocation is successful
         map.on('style.load', () => {
@@ -67,18 +70,24 @@
                         const userLng = e.coords.longitude;
                         const userLat = e.coords.latitude;
 
-                        // Load a 3D model at the user's location
-                        tb.loadObj({
-                            obj: 'model/avatarLatestLIGHT.gltf', // Replace with actual 3D model URL
-                            type:'gltf',
-                            scale: 5, // Adjust scale as needed
-                            units: 'meters', // Ensure proper size on the map
-                            rotation: { x: 90, y: 0, z: 0 }, // Adjust rotation if necessary
-                            anchor: 'center'
-                        }, (model) => {
-                            // Once the model is loaded, set its position to the user's location
-                            tb.add(model.setCoords([userLng, userLat]));
-                        });
+                        // If the model doesn't exist, add it, otherwise update its position
+                        if (!userModel) {
+                            // Load a 3D model at the user's location
+                            tb.loadObj({
+                                obj: 'model/avatarLatestLIGHT.gltf', // Replace with actual 3D model URL
+                                type: 'gltf',
+                                scale: 5, // Adjust scale as needed
+                                units: 'meters', // Ensure proper size on the map
+                                rotation: { x: 90, y: 0, z: 0 }, // Adjust rotation if necessary
+                                anchor: 'center'
+                            }, (model) => {
+                                userModel = model; // Store the model reference
+                                tb.add(userModel.setCoords([userLng, userLat]));
+                            });
+                        } else {
+                            // Update the model's position to the user's new location
+                            userModel.setCoords([userLng, userLat]);
+                        }
 
                         // Optionally, fly to the user's location with the 3D model
                         map.flyTo({
